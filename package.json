@@ -1,0 +1,53 @@
+{
+  "name": "hmac-guard",
+  "version": "1.0.0",
+  "description": "Express middleware, webhook gateway and CLI that protects public API webhooks against DDoS, replay attacks and unauthorized spam (HMAC signatures, timestamps, nonces, rate limits, IP bans).",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "bin": {
+    "hmac-guard": "bin/hmac-guard.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "examples",
+    "README.md"
+  ],
+  "scripts": {
+    "start": "node bin/hmac-guard.js serve",
+    "dev": "node --watch bin/hmac-guard.js serve",
+    "demo": "node bin/hmac-guard.js demo",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=20.12"
+  },
+  "keywords": [
+    "hmac",
+    "webhook",
+    "signature",
+    "express",
+    "middleware",
+    "rate-limit",
+    "replay-attack",
+    "ddos",
+    "stripe",
+    "github",
+    "shopify",
+    "slack",
+    "twilio",
+    "standard-webhooks"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^14.0.0",
+    "express": "^5.1.0",
+    "rate-limiter-flexible": "^7.1.0"
+  },
+  "optionalDependencies": {
+    "ioredis": "^5.11.1"
+  }
+}

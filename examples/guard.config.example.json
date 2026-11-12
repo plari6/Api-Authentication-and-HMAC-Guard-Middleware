@@ -1,0 +1,71 @@
+{
+  "server": {
+    "port": 8080,
+    "trustProxy": 1,
+    "metricsToken": "env:METRICS_TOKEN?"
+  },
+  "limits": {
+    "ip": { "points": 30, "duration": 1, "blockDuration": 10 },
+    "global": { "points": 1000, "duration": 1 },
+    "failedAuth": { "points": 10, "duration": 600, "blockDuration": 900 },
+    "client": { "points": 600, "duration": 60 }
+  },
+  "defaults": {
+    "toleranceSec": 300,
+    "maxBodyBytes": 1048576,
+    "replayTtlSec": 86400
+  },
+  "redis": { "url": "env:REDIS_URL?" },
+  "audit": { "file": "logs/audit.jsonl", "console": true },
+  "deadLetterFile": "logs/dead-letter.jsonl",
+  "ipDeny": [],
+  "routes": [
+    {
+      "name": "partner-api",
+      "path": "/hooks/partner",
+      "provider": "generic",
+      "contentTypes": ["application/json"],
+      "keys": [
+        { "id": "acme-202611-ab12", "client": "acme", "secret": "env:ACME_HMAC_SECRET" },
+        { "id": "globex-202611-cd34", "client": "globex", "secret": "env:GLOBEX_HMAC_SECRET?", "limit": { "points": 60, "duration": 60 } }
+      ],
+      "forward": { "url": "env:PARTNER_UPSTREAM_URL?", "mode": "async", "retries": 4, "secret": "env:UPSTREAM_SIGNING_SECRET?" }
+    },
+    {
+      "name": "stripe",
+      "path": "/hooks/stripe",
+      "provider": "stripe",
+      "keys": [{ "id": "stripe-live", "secret": "env:STRIPE_WEBHOOK_SECRET?" }],
+      "forward": { "url": "env:STRIPE_UPSTREAM_URL?", "mode": "async" }
+    },
+    {
+      "name": "shopify",
+      "path": "/hooks/shopify",
+      "provider": "shopify",
+      "keys": [{ "id": "shopify", "secret": "env:SHOPIFY_WEBHOOK_SECRET?" }],
+      "forward": { "url": "env:SHOPIFY_UPSTREAM_URL?", "mode": "async" }
+    },
+    {
+      "name": "twilio-whatsapp",
+      "path": "/hooks/twilio",
+      "provider": "twilio",
+      "publicBaseUrl": "env:PUBLIC_BASE_URL?",
+      "contentTypes": ["application/x-www-form-urlencoded"],
+      "keys": [{ "id": "twilio", "secret": "env:TWILIO_AUTH_TOKEN?" }],
+      "forward": { "url": "env:TWILIO_UPSTREAM_URL?", "mode": "sync", "timeoutMs": 8000 }
+    },
+    {
+      "name": "resend",
+      "path": "/hooks/resend",
+      "provider": "standard",
+      "keys": [{ "id": "resend", "secret": "env:RESEND_WEBHOOK_SECRET?" }]
+    },
+    {
+      "name": "internal-api",
+      "path": "/api/ingest",
+      "provider": "apikey",
+      "methods": ["POST", "PUT"],
+      "keys": [{ "id": "crm-sync", "client": "crm", "hash": "sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08" }]
+    }
+  ]
+}

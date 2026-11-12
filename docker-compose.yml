@@ -1,0 +1,22 @@
+# Gateway + Redis (shared limits and replay store, so you can run several replicas).
+#   cp examples/guard.config.example.json config/guard.config.json
+#   cp .env.example .env   # fill in secrets
+#   docker compose up -d --scale guard=2
+services:
+  guard:
+    build: .
+    env_file: .env
+    environment:
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - ./config:/app/config:ro
+      - ./logs:/app/logs
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    restart: unless-stopped
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "128mb", "--maxmemory-policy", "volatile-ttl"]
+    restart: unless-stopped

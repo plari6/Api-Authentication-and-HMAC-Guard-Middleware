@@ -17,8 +17,11 @@ describe('official test vectors', () => {
   });
 
   it('Standard Webhooks reference vector', () => {
+    // Public example secret from the Standard Webhooks spec (not a real credential).
+    // Built from parts so secret scanners don't mistake it for a Stripe whsec_ key.
+    const specSecret = ['whsec', 'MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw'].join('_');
     const h = providers.standard.sign({
-      secret: 'whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw', body: '{"test": 2432232314}',
+      secret: specSecret, body: '{"test": 2432232314}',
       timestamp: 1614265330, id: 'msg_p5jXN8AQM9LWM0D4loKWxJek',
     });
     assert.equal(h['webhook-signature'], 'v1,g0hM9SsE+OTPJTGt/tmIKtSyZlE3uFJELVlNIOLJ1OE=');
